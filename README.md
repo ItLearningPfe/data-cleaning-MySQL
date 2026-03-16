@@ -1,4 +1,3 @@
-Voici une proposition de README.md professionnel, structuré et complet pour votre projet de nettoyage de données (Data Cleaning) avec SQL, basé sur les notes fournies.
 
 Data Cleaning in SQL - Nashville Housing Dataset
 📌 Présentation du Projet
