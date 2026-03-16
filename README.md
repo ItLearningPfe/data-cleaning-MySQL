@@ -67,6 +67,6 @@ Exécutez le script SQL fourni (cleaning_script.sql) pour appliquer les transfor
 📂 Structure du Repository
 Nashville_Housing_Data.xlsx : Le fichier de données brut.
 
-cleaning_queries.sql : Le script complet avec les commentaires détaillés.
+NettoyagePortfolio.sql : Le script complet avec les commentaires détaillés.
 
 README.md : Documentation du projet.
