@@ -1,188 +1,72 @@
-# data-cleaning-MySQL
+Voici une proposition de README.md professionnel, structuré et complet pour votre projet de nettoyage de données (Data Cleaning) avec SQL, basé sur les notes fournies.
 
-🧹 Data Cleaning avec MySQL — Dataset World Layoffs
-📌 Description du projet
+Data Cleaning in SQL - Nashville Housing Dataset
+📌 Présentation du Projet
+Ce projet se concentre sur l'étape la plus cruciale du travail d'un analyste de données : le Nettoyage de Données (Data Cleaning). L'objectif est de prendre un jeu de données "brut" (raw data) sur le marché immobilier de Nashville et de le transformer en un ensemble de données propre, structuré et prêt pour l'analyse.
 
-Ce projet consiste à nettoyer et préparer un dataset réel de licenciements dans le monde (World Layoffs) à l’aide de MySQL.
+Le projet utilise SQL Server (T-SQL) pour manipuler environ 56 000 lignes de données et résoudre des problèmes courants tels que les formats de date incohérents, les valeurs nulles, les colonnes fusionnées et les doublons.
 
-Le data cleaning est une étape essentielle en analyse de données : il permet de transformer des données brutes (raw data) en données fiables et exploitables pour l’analyse, la visualisation ou l’intégration dans des applications.
+📊 Jeu de Données
+Le dataset utilisé est le Nashville Housing Dataset. Il contient des informations sur les transactions immobilières :
 
-Dans ce projet, nous importons un dataset contenant des informations sur les licenciements dans différentes entreprises (secteur, pays, nombre d’employés licenciés, etc.), puis nous appliquons plusieurs étapes de nettoyage pour améliorer la qualité des données.
+Identifiants uniques (Unique ID, Parcel ID)
 
-Le dataset nettoyé pourra ensuite être utilisé pour un projet d’analyse exploratoire des données (EDA).
+Adresses de propriété et de propriétaire
 
-🗂️ Dataset
+Dates de vente et prix
 
-Le dataset contient des informations sur des licenciements d'entreprises dans le monde depuis environ 2021.
+Détails techniques (nombre de chambres, salles de bain, valeur du terrain)
 
-Colonnes principales
-Colonne	Description
-company	Nom de l’entreprise
-location	Localisation de l’entreprise
-industry	Secteur d’activité
-total_laid_off	Nombre total d’employés licenciés
-percentage_laid_off	Pourcentage d’employés licenciés
-date	Date de l’annonce des licenciements
-stage	Stade de développement de l’entreprise (ex: Series B, Post-IPO…)
-country	Pays
-funds_raised_millions	Fonds levés par l’entreprise (en millions)
-⚙️ Technologies utilisées
+🛠️ Étapes de Nettoyage réalisées
+1. Standardisation du format de Date
+Le champ SaleDate contenait initialement une composante temporelle (Time) inutile.
 
-MySQL
+Solution : Création d'une nouvelle colonne SaleDateConverted au format Date uniquement pour plus de clarté.
 
-SQL
+2. Remplissage des adresses de propriété manquantes
+Certaines lignes présentaient des valeurs NULL pour l'adresse de la propriété alors qu'elles possédaient un ParcelID.
 
-MySQL Workbench
+Solution : Utilisation d'une Self-Join (jointure de la table sur elle-même) pour faire correspondre les ParcelID identiques et peupler les adresses manquantes via la fonction ISNULL.
 
-🏗️ Structure du projet
+3. Fractionnement des Adresses (Propriété & Propriétaire)
+Les adresses étaient stockées dans une seule colonne (Adresse, Ville, État).
 
-Le projet utilise deux tables principales :
+Solution pour l'adresse propriété : Utilisation de SUBSTRING et CHARINDEX pour extraire l'adresse et la ville.
 
-1️⃣ Table layoffs
+Solution pour l'adresse propriétaire : Utilisation de PARSENAME (après remplacement des virgules par des points) pour une méthode plus simple et efficace afin d'extraire l'adresse, la ville et l'état.
 
-Contient les données brutes importées depuis le dataset.
+4. Harmonisation du champ "Sold as Vacant"
+Ce champ contenait des valeurs disparates : "Yes", "No", "Y" et "N".
 
-2️⃣ Table layoffs_staging
+Solution : Utilisation d'une instruction CASE pour convertir tous les "Y" en "Yes" et les "N" en "No".
 
-Table de travail utilisée pour le nettoyage des données.
+5. Suppression des Doublons
+Identification des lignes identiques basées sur des critères spécifiques (ParcelID, PropertyAddress, SalePrice, SaleDate, LegalReference).
 
-Cela permet de :
+Solution : Utilisation de CTE (Common Table Expressions) et de la fonction de fenêtrage ROW_NUMBER() pour isoler et supprimer les doublons.
 
-préserver les données originales
+6. Nettoyage des colonnes inutilisées
+Pour optimiser la base de données finale, les colonnes transformées ou devenues inutiles ont été supprimées.
 
-éviter de modifier directement les données sources
+🚀 Compétences SQL démontrées
+DML (Data Manipulation Language) : UPDATE, DELETE, INSERT.
 
-recommencer facilement le nettoyage en cas d’erreur
+DDL (Data Definition Language) : ALTER TABLE, ADD.
 
-🔄 Étapes du Data Cleaning
+Fonctions avancées : ISNULL, SUBSTRING, PARSENAME, CHARINDEX, CAST/CONVERT.
 
-Le nettoyage des données a été réalisé en plusieurs étapes.
+Requêtes complexes : Joins (Self-Join), CTEs, Window Functions (ROW_NUMBER).
 
-1️⃣ Suppression des doublons
+⚙️ Installation
+Téléchargez le jeu de données Excel fourni dans ce repository.
 
-Nous avons identifié les lignes dupliquées à l’aide de la fonction SQL :
+Importez le fichier dans SQL Server Management Studio (SSMS) à l'aide de l'outil "Import and Export Data".
 
-ROW_NUMBER() OVER(PARTITION BY ...)
+Exécutez le script SQL fourni (cleaning_script.sql) pour appliquer les transformations.
 
-Cette fonction permet :
+📂 Structure du Repository
+Nashville_Housing_Data.xlsx : Le fichier de données brut.
 
-d’attribuer un numéro à chaque ligne
+cleaning_queries.sql : Le script complet avec les commentaires détaillés.
 
-d’identifier les doublons
-
-de supprimer uniquement les lignes en trop
-
-Les doublons ont ensuite été supprimés dans une table de staging.
-
-2️⃣ Standardisation des données
-
-Certaines valeurs contenaient des incohérences ou des différences d’écriture.
-
-Exemples corrigés :
-
-Espaces inutiles
-UPDATE layoffs_staging2
-SET company = TRIM(company);
-Uniformisation des secteurs
-
-Par exemple :
-
-crypto
-cryptocurrency
-CryptoCurrency
-
-ont été standardisés en :
-
-crypto
-3️⃣ Correction des valeurs incorrectes
-
-Certaines valeurs contenaient des erreurs de format.
-
-Exemple :
-
-United States.
-
-corrigé en :
-
-United States
-
-via la fonction TRIM.
-
-4️⃣ Conversion des dates
-
-La colonne date était initialement au format texte.
-
-Elle a été convertie au format DATE avec :
-
-STR_TO_DATE(date, '%m/%d/%Y')
-
-Puis la colonne a été modifiée avec :
-
-ALTER TABLE layoffs_staging2
-MODIFY COLUMN date DATE;
-5️⃣ Gestion des valeurs NULL et vides
-
-Certaines colonnes contenaient :
-
-valeurs NULL
-
-valeurs vides
-
-Dans certains cas, ces valeurs ont pu être remplies automatiquement grâce à d'autres lignes contenant les mêmes informations.
-
-Exemple :
-
-Si une entreprise avait :
-
-industry = NULL
-
-mais une autre ligne avec :
-
-industry = Travel
-
-alors la valeur a été complétée automatiquement.
-
-6️⃣ Suppression de lignes inutiles
-
-Les lignes contenant :
-
-total_laid_off = NULL
-AND percentage_laid_off = NULL
-
-ont été supprimées car elles ne contiennent aucune information exploitable.
-
-7️⃣ Suppression des colonnes temporaires
-
-La colonne row_num, utilisée pour détecter les doublons, a été supprimée :
-
-ALTER TABLE layoffs_staging2
-DROP COLUMN row_num;
-📊 Résultat
-
-À la fin du processus, nous obtenons un dataset propre et prêt pour l’analyse :
-
-sans doublons
-
-avec des formats cohérents
-
-avec des données standardisées
-
-avec les valeurs inutiles supprimées
-
-
-
-💡 Compétences démontrées
-
-Ce projet met en pratique :
-
-SQL avancé
-
-Data Cleaning
-
-Gestion des données manquantes
-
-Standardisation de données
-
-Manipulation de tables SQL
-
-Bonnes pratiques en Data Analysis
+README.md : Documentation du projet.
